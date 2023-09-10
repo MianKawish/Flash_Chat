@@ -1,6 +1,8 @@
+import 'package:flash_chat/chat_screen.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:flash_chat/material_button_custom_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "RegistrationScreen";
@@ -9,6 +11,10 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  String email = '';
+  String password = '';
+  final _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,16 +37,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             ),
             TextField(
                 onChanged: (value) {
-                  //Do something with the user input.
+                  email = value;
                 },
+                keyboardType: TextInputType.emailAddress,
+                textAlign: TextAlign.center,
                 decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Enter Your Email')),
+                  hintText: 'Enter Your Email',
+                )),
             const SizedBox(
               height: 8.0,
             ),
             TextField(
+                obscureText: true,
+                textAlign: TextAlign.center,
                 onChanged: (value) {
-                  //Do something with the user input.
+                  password = value;
                 },
                 decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter Your Password')),
@@ -50,7 +61,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             MaterialButtonWidget(
               color: Colors.blueAccent,
               customText: "Register",
-              function: () {},
+              function: () async {
+                try {
+                  final newUser = await _auth.createUserWithEmailAndPassword(
+                      email: email, password: password);
+                  if (newUser != null) {
+                    Navigator.popAndPushNamed(context, ChatScreen.id);
+                  }
+                } catch (e) {
+                  print(e);
+                }
+              },
             )
           ],
         ),
